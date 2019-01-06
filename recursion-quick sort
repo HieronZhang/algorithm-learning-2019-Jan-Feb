@@ -1,0 +1,39 @@
+//quick sort
+#include <iostream>
+using namespace std;
+
+void sort(int array[],int yy,int zz){       //sort the array from yy to zz
+    if(yy>=zz){}
+    else{
+        int y=yy;
+        int z=zz;
+        int k=array[y];
+        do{
+            while(z>y&&array[z]>k)
+                z--;
+            if(z>y){
+                array[y]=array[z];
+                y++;
+            }
+            while(z>y&&array[y]<k)
+                y++;
+            if(z>y){
+                array[z]=array[y];
+                z--;
+            }
+        }
+        while(z!=y);
+        array[z]=k;
+        sort(array,yy,y-1);
+        sort(array,y+1,zz);
+    }
+}
+int main() {
+    int array[]={1,4,7,15,12,5,3,9,8,99,156,258,46,35,97,25,52,999,10086,212,1024};
+    sort(array,0,20);
+    for(int i=0;i<=20;i++){
+        cout<<array[i]<<" ";
+    }
+    cout<<endl;
+    return 0;
+}
