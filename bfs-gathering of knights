@@ -1,0 +1,123 @@
+//骑士聚会问题。在8*8的棋盘上，输入n个骑士的出发点，假定骑士每天最多只能跳一步，
+//计算n个人的最早聚会地点和走多少天。要求尽早聚会，且n个人的走的总步数最少。骑士的走法按中国象棋的马来跳。
+//马跳有8个方向，k=1-8，分别对应dx【8】和dy【8】的位移数组。
+//棋盘为三维数组，第一维是骑士号。后二维数组位置上存储骑士跳步最快天数，跳过之后不能再回来（保证最快）
+//tail和head指队列首尾，m和sq指每层扩展的头尾。
+
+#include <iostream>
+using namespace std;
+
+const int T=8;//尺寸
+const int dx[8]={1,2,2,1,-1,-2,-2,-1};
+const int dy[8]={-2,-1,1,2,2,1,-1,-2};
+int n;
+int best_bu[65][T][T];
+struct weizhicanshu{
+    int max;
+    int sum;
+}good[T][T];
+
+struct point{
+    int x,y;
+}queue[T*T],rec[T*T];
+
+void init(){
+    for(int i=1;i<=64;i++){
+        for(int j=0;j<=7;j++){
+            for(int k=0;k<=7;k++){
+                best_bu[i][j][k]=-1;
+            }
+        }
+    }
+    cout<<"Please input the number of knights: \n";
+    cin>>n;
+    for(int u=1;u<=n;u++){
+        cout<<"Please input the x of No."<<u<<" knight:"<<endl;
+        cin>>rec[u].x;
+        cout<<"Please input the y of No."<<u<<" knight:"<<endl;
+        cin>>rec[u].y;
+        best_bu[u][rec[u].x][rec[u].y]=0;
+    }
+}
+
+bool isright(int x,int y,int i){
+    return(x>=0&&x<8&&y>=0&&y<8&&best_bu[i][x][y]==-1);
+}
+
+void BFS(){
+    for(int i=1;i<=n;i++){
+        int head=1;
+        int tail=1;
+        queue[1]=rec[i];
+        int step=0;
+        int m=head;
+        while(m<=tail){
+            int sq=tail;
+            for(int y=m;y<=sq;y++){
+                for(int k=0;k<8;k++){
+                    int x1=queue[y].x+dx[k];
+                    int y1=queue[y].y+dy[k];
+                    if(isright(x1,y1,i)){
+                        tail++;
+                        queue[tail].x=x1;
+                        queue[tail].y=y1;
+                        best_bu[i][x1][y1]=step+1;
+                    }
+                }
+            }
+            m=sq+1;
+            step++;
+        }
+        for(int x2=0;x2<8;x2++){
+            for(int y2=0;y2<8;y2++){
+                if(best_bu[i][x2][y2]==-1)
+                    best_bu[i][x2][y2]=9999999;    //永远也走不到
+            }
+        }
+    }
+}
+
+void search(){
+    BFS();
+    int gatheringx;
+    int gatheringy;
+    for(int x=0;x<T;x++){
+        for(int y=0;y<T;y++){
+            good[x][y].sum=0;
+            good[x][y].max=-1;
+            for(int i=1;i<=n;i++){
+                good[x][y].sum+=best_bu[i][x][y];
+                if(best_bu[i][x][y]>good[x][y].max)
+                    good[x][y].max=best_bu[i][x][y];
+            }
+        }
+    }
+    int min=999999;
+    int sum;
+    for(int x=0;x<8;x++){
+        for(int y=0;y<8;y++){
+            if(good[x][y].max<min){
+                min=good[x][y].max;
+                sum=good[x][y].sum;
+                gatheringx=x;
+                gatheringy=y;
+            }
+            else if(good[x][y].max==min){
+                if(good[x][y].sum<sum){
+                    sum=good[x][y].sum;
+                    gatheringx=x;
+                    gatheringy=y;
+                }
+            }
+        }
+    }
+    cout<<"The location: x: "<<gatheringx<<" y: "<<gatheringy<<endl;
+    cout<<"The least number of days: "<<min<<endl;
+    cout<<"The sum of knights' steps: "<<sum<<endl;
+}
+
+int main() {
+    init();
+    search();
+    return 0;
+}
