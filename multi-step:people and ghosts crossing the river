@@ -1,0 +1,80 @@
+//人鬼渡河问题：有3个人带着3个鬼要从河的东岸坐船摆渡到西岸，船很小，容量为2（或两人，或两鬼，或一人和1鬼）。无论是在河的东岸还是在河的西岸，一旦鬼数
+//多于人数，则人会被鬼扔到河中。试编程求出一种渡河方案。
+#include <iostream>
+using namespace std;
+
+void display();
+void transfer_state();
+
+struct state{
+    int Person;
+    int Ghost;
+};
+state status[20];
+int choice[20]={0};
+int k;
+
+int main() {
+    transfer_state();
+    display();
+    return 0;
+}
+
+void transfer_state(){
+    state strategy[6]={{0,0},{2,0},{1,0},{1,1},{0,1},{0,2}};
+    k=1;
+    status[1].Ghost=3;
+    status[1].Person=3;
+    do{
+        int factor=1;
+        if(k%2==1)
+            factor=-1;
+        int i;
+        for(i=choice[k+1]+1;i<=5;i++){
+            int per=status[k].Person+factor*strategy[i].Person;
+            int gho=status[k].Ghost+factor*strategy[i].Ghost;
+            if(per>3||per<0||gho>3||gho<0){
+                continue;
+            }
+            bool safe=((per==3||per==0)||(per==1&&gho==1)||(per==2&&gho==2));
+            if(!safe)
+                continue;
+            bool repetition=false;
+            for(int j=k-1;j>=1;j-=2){
+                if(status[j].Person==per&&status[j].Ghost==gho){
+                    repetition=true;
+                }
+            }
+            if(repetition)
+                continue;
+            k++;
+            status[k].Person=per;
+            status[k].Ghost=gho;
+            choice[k]=i;
+            break;
+        }
+        if(i==6&&!(status[k].Person==0&&status[k].Ghost==0))
+            k--;
+    }while(!(status[k].Person==0&&status[k].Ghost==0));
+}
+void display(){
+    for(int i=1;i<=k;i++){
+        cout<<i<<": ("<<status[i].Person<<","<<status[i].Ghost<<")"<<endl;
+    }
+}
+
+//"C:\Users\zhy\untitled\people and ghosts crossing the river\cmake-build-debug\people_and_ghosts_crossing_the_river.exe"
+//1: (3,3)
+//2: (2,2)
+//3: (3,2)
+//4: (3,0)
+//5: (3,1)
+//6: (1,1)
+//7: (2,2)
+//8: (0,2)
+//9: (0,3)
+//10: (0,1)
+//11: (1,1)
+//12: (0,0)
+//
+//Process finished with exit code 0
