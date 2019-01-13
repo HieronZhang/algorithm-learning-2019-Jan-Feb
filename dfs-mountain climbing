@@ -10,7 +10,128 @@
 #include <iostream>
 using namespace std;
 
+const int MAXPRESON=10;
+int minNeed=100000;
+int N,P;
+int kneed,ktake,kd,kh,kk;
+struct person{
+    int No;
+    int need;
+    int take;
+    double duxingday;
+    int zhiyuanH;
+    bool status;
+}club[MAXPRESON+1],list[MAXPRESON+1],best[MAXPRESON+1];
+
+void sort();
+void display();
+void Search1(int,int,int,int);
+void Search2(int,int,int,int);
+int qiuzheng(int, int);
+void readData();
+
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    readData();
+    for(int i=1;i<=P;i++){
+        club[i].status=false;
+    }
+    sort();
+    Search1(1,0,0,N);
+    display();
     return 0;
 }
+
+void readData(){
+    cout<<"Input the height of the mountain: N, the number of persons in the club: P"<<endl;
+    cin>>N>>P;
+    cout<<"Input the daily food every person needs"<<endl;
+    for(int i=1;i<=P;i++){
+        club[i].No=i;
+        cin>>club[i].need;
+    }
+    cout<<"Input the total food every person can take"<<endl;
+    for(int i=1;i<=P;i++){
+        cin>>club[i].take;
+        club[i].duxingday=(double)club[i].take/(double)club[i].need;
+    }
+}
+void sort(){
+    for(int j=1;j<P;j++){
+        for(int k=1;k<=P-j;k++){
+            if(club[k+1].duxingday>club[k].duxingday){
+                person q=club[k+1];
+                club[k+1]=club[k];
+                club[k]=q;
+            }
+        }
+    }
+}
+int qiuzheng(int a,int b){
+    if(a%b==0)
+        return a/b;
+    else
+        return (a/b +1);
+}
+void display(){
+    cout<<"the number of persons to climb: "<<kk<<", the min need:"<<minNeed<<endl;
+    for(int i=1;i<=kk;i++){
+        cout<<"the 'number' of the person is: "<<best[i].No<<", climbing height is: "<<best[i].zhiyuanH<<endl;
+    }
+}
+void Search1(int k,int need,int take, int h){
+    if(k>P)
+        return;
+    else{
+        for(int i=1;i<=P;i++){
+            if(!club[i].status&&(club[i].duxingday>h)) {
+                kneed = need + club[i].need *2*h;
+                if(kneed>minNeed)
+                    continue;
+                list[k]=club[i];
+                list[k].zhiyuanH=h;
+                club[i].status= true;
+                ktake=take+club[i].take;
+                if(ktake>kneed){
+                    kd=0;
+                }
+                else
+                    kd=kneed-ktake;
+                int kneedzonghe=0;
+                for(int m=1;m<=k;m++){
+                    kneedzonghe+=list[m].need;
+                }
+                kh=qiuzheng(kd,kneedzonghe);//新一轮支援高度
+                if(kh==0){
+                    if(kneed<minNeed){
+                        minNeed=kneed;
+                        kk=k;
+                        for(int m=1;m<=kk;m++){
+                            best[m]=list[m];
+                        }
+                    }
+                }
+                else{
+                    Search1(k+1,kneed,ktake,kh);
+                }
+                club[i].status=false;           //回溯
+            }
+        }
+    }
+}
+
+//"C:\Users\zhy\untitled\dfs-mountain climbing\cmake-build-debug\dfs_mountain_climbing.exe"
+//Input the height of the mountain: N, the number of persons in the club: P
+//6 6
+//6 6
+//Input the daily food every person needs
+//1 2 2 2 3 3 
+//1 2 2 2 3 3
+//Input the total food every person can take
+//7 8 17 18 22 25
+//7 8 17 18 22 25
+//the number of persons to climb: 3, the min need:38
+//the 'number' of the person is: 4, climbing height is: 6
+//the 'number' of the person is: 3, climbing height is: 3
+//the 'number' of the person is: 1, climbing height is: 1
+//
+//Process finished with exit code 0
