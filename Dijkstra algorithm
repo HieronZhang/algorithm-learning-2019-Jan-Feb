@@ -1,0 +1,87 @@
+#include <iostream>
+#include <limits>
+using namespace std;
+
+const int SIZE=5;
+
+int DIjkstra(int Edge[][SIZE],int nStart,int nDest, int Path[]){
+    int Mindis[SIZE];
+    bool ifinS2[SIZE];
+    //初始化
+    for(int i=0;i<SIZE;i++){
+        ifinS2[i]=true;
+    }
+    ifinS2[nStart]=false;
+    for(int i=0;i<SIZE;i++){
+        Mindis[i]=Edge[nStart][i];
+        if(Edge[nStart][i]<INT8_MAX)
+            Path[i]=nStart;                 //此点在最短路线上的前一个点
+        else
+            Path[i]=-1;
+    }
+    while(ifinS2[nDest]){
+        //查找s2中最短路径长度最小值的点
+        int nMinlen=INT8_MAX;
+        int npoint=-1;
+        for(int i=0;i<SIZE;i++){
+            if(ifinS2[i]&&Mindis[i]<nMinlen){
+                npoint=i;
+                nMinlen=Mindis[i];
+            }
+        }
+        if(nMinlen==INT8_MAX)
+            break;
+        //更新s2和mindis
+        ifinS2[npoint]= false;
+        for(int i=0;i<SIZE;i++){
+            if(ifinS2[i]&&(Edge[npoint][i]<INT8_MAX)){
+                int anewlen=nMinlen+Edge[npoint][i];
+                if(anewlen<Mindis[i]){
+                    Path[i]=npoint;
+                    Mindis[i]=anewlen;
+                }
+            }
+        }
+    }
+    return Mindis[nDest];
+}
+void Outputpath(int Path[SIZE],int nDest){
+    if(Path[nDest]==-1){
+        cout<<"没有路径！"<<endl;
+    }
+    else if(Path[nDest]==nDest)  //nStart出就是类似模样
+        cout<<'v'<<nDest;
+    else{
+        Outputpath(Path,Path[nDest]);
+        cout<<" --> v"<<nDest;
+    }
+}
+
+int main() {
+    int Edge[SIZE][SIZE];
+    for(int i=0;i<SIZE;i++){
+        for(int j=0;j<SIZE;j++){
+            Edge[i][j]=INT8_MAX;
+        }
+        Edge[i][i]=0;
+    }
+    Edge[0][1]=10;
+    Edge[0][2]=12;
+    Edge[1][3]=10;
+    Edge[2][4]=7;
+    Edge[3][0]=15;
+    Edge[3][1]=12;
+    Edge[3][4]=7;
+    int Path[SIZE];
+    int npathlength=DIjkstra(Edge,0,4,Path);
+    if(npathlength==INT8_MAX){
+        cout<<"没有路径！"<<endl;
+    }
+    else{
+        cout<<"从v0到v4的最短路径为："<<endl;
+        Outputpath(Path,4);
+        cout<<endl;
+        cout<<"路径长度为："<<npathlength<<endl;
+    }
+    return 0;
+}
